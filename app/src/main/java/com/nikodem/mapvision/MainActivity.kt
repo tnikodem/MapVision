@@ -1,47 +1,54 @@
 package com.nikodem.mapvision
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.nikodem.mapvision.ui.theme.MapVisionTheme
+import android.widget.Button
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import org.maplibre.android.MapLibre
+import org.maplibre.android.maps.MapLibreMap
+import org.maplibre.android.maps.MapView
+import org.maplibre.android.geometry.LatLng
+import org.maplibre.android.camera.CameraPosition
+import java.util.Properties
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
+
+    private lateinit var mapView: MapView
+    private lateinit var mapLibreMap: MapLibreMap
+
+    private fun getMapStyleUrl(): String {
+        val properties = Properties()
+        // In src.main.assets/secrets.properties
+        // Add the file secrets.properties with the content MAP_STYLE_URL="https://example.com/style.json"
+        val inputStream = assets.open("secrets.properties")
+        properties.load(inputStream)
+        return properties.getProperty("MAP_STYLE_URL")
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            MapVisionTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+
+        // Init MapLibre
+        MapLibre.getInstance(this)
+
+        setContentView(R.layout.activity_main)
+
+        // Init the MapView
+        mapView = findViewById(R.id.mapView)
+        mapView.getMapAsync { map ->
+            map.setStyle(getMapStyleUrl()){
+                // Aktivieren der MapControls
+                map.uiSettings.isCompassEnabled = true
             }
+            mapLibreMap = map
+            map.cameraPosition = CameraPosition.Builder().target(LatLng(50.7,6.0)).zoom(15.0).build()
         }
-    }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MapVisionTheme {
-        Greeting("Android")
     }
+
+    override fun onStart() { super.onStart(); mapView.onStart() }
+    override fun onResume() { super.onResume(); mapView.onResume() }
+    override fun onPause() { super.onPause(); mapView.onPause() }
+    override fun onStop() { super.onStop(); mapView.onStop() }
+    override fun onDestroy() { super.onDestroy(); mapView.onDestroy() }
 }
