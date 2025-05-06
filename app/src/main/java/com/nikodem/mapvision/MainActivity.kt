@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity() {
         mapView = findViewById(R.id.mapView)
         mapView.getMapAsync { map ->
             mapLibreMap = map
-            map.cameraPosition = CameraPosition.Builder().target(LatLng(50.7753, 6.0839)).zoom(12.0).build()
+            map.cameraPosition = CameraPosition.Builder().target(LatLng(50.826, 6.07717)).zoom(12.0).build()
 
             map.setStyle(getMapStyleUrl()){
                 map.uiSettings.isCompassEnabled = true
@@ -86,7 +86,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showAachenMarker() {
-        val aachenLatLng = LatLng(50.7753, 6.0839)
+        val aachenLatLng = LatLng(50.826, 6.07717)
         mapLibreMap.addMarker(
             MarkerOptions()
                 .position(aachenLatLng)
@@ -121,8 +121,8 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     //FIXME
                     val latLng = LatLng(
-                        50.7753 + (Math.random() - 0.5) * 0.01,
-                        6.0839 + (Math.random() - 0.5) * 0.01
+                        50.826 + (Math.random() - 0.5) * 0.001,
+                        6.07717 + (Math.random() - 0.5) * 0.001
                     )
                     coordinates.add(latLng)
                     updateMapWithCoordinates()
