@@ -5,11 +5,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.Toast
-import androidx.preference.PreferenceFragmentCompat
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
+import androidx.preference.PreferenceManager
 import org.maplibre.android.MapLibre
 import org.maplibre.android.annotations.MarkerOptions
 import org.maplibre.android.maps.MapLibreMap
@@ -33,15 +33,21 @@ class MainActivity : AppCompatActivity() {
     private val handler = android.os.Handler()
     private val updateInterval = 5000L // 5 seconds
 
-
-    private fun getMapStyleUrl(): String {
+    private fun getMapStyleUrl(mapType: String): String {
         val properties = Properties()
-        // Create file app/src/main/assets/secrets.properties
-        // Add MAP_STYLE_URL="https://example.com/style.json"
-        val inputStream = assets.open("secrets.properties")
-        properties.load(inputStream)
-        //return properties.getProperty("MAP_STYLE_URL")
-        return properties.getProperty("MAP_STYLE_SAT")
+        return try {
+            assets.open("secrets.properties").use { inputStream ->
+                properties.load(inputStream)
+                when (mapType) {
+                    "outdoor" -> properties.getProperty("MAP_STYLE_OUT")
+                    "satellite" -> properties.getProperty("MAP_STYLE_SAT")
+                    else -> properties.getProperty("MAP_STYLE_MAP")
+                } ?: "https://default-url.com/style.json"
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            "https://default-url.com/style.json" // Fallback-URL
+        }
     }
 
     private fun createFeatureCollection(): FeatureCollection {
@@ -57,6 +63,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val mapType = sharedPreferences.getString("map_type", "normal")?:"normal"
+
         // Init MapLibre
         MapLibre.getInstance(this)
 
@@ -68,7 +77,8 @@ class MainActivity : AppCompatActivity() {
             mapLibreMap = map
             map.cameraPosition = CameraPosition.Builder().target(LatLng(50.826, 6.07717)).zoom(12.0).build()
 
-            map.setStyle(getMapStyleUrl()){
+            val mapStyleUrl = getMapStyleUrl(mapType)
+            map.setStyle(mapStyleUrl) {
                 map.uiSettings.isCompassEnabled = true
                 showAachenMarker()
                 enableLocation()

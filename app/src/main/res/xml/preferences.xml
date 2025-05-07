@@ -12,4 +12,11 @@
         android:summary="Enable or disable location tracking"
         android:defaultValue="true" />
 
+    <ListPreference
+        android:key="map_type"
+        android:title="Map Type"
+        android:summary="Select the type of map to display"
+        android:entries="@array/map_type_entries"
+        android:entryValues="@array/map_type_values"
+        android:defaultValue="normal" />
 </PreferenceScreen>
