@@ -1,9 +1,11 @@
 package com.nikodem.mapvision
 
 import android.Manifest
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.Toast
+import androidx.preference.PreferenceFragmentCompat
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import android.content.pm.PackageManager
@@ -82,6 +84,12 @@ class MainActivity : AppCompatActivity() {
             val zoomOutButton = findViewById<Button>(R.id.button_zoom_out)
             zoomOutButton.setOnClickListener {
                 map.animateCamera(CameraUpdateFactory.zoomOut())
+            }
+            // Settings Button Callback
+            val settingsButton = findViewById<Button>(R.id.button_settings)
+            settingsButton.setOnClickListener {
+                val intent = Intent(this, SettingsActivity::class.java)
+                startActivity(intent)
             }
         }
     }

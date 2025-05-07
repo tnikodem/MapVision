@@ -1,0 +1,15 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+        android:key="map_style_url"
+        android:title="Map Style URL"
+        android:summary="Set the URL for the map style"
+        android:defaultValue="https://example.com/style.json" />
+
+    <SwitchPreferenceCompat
+        android:key="enable_tracking"
+        android:title="Enable Tracking"
+        android:summary="Enable or disable location tracking"
+        android:defaultValue="true" />
+
+</PreferenceScreen>

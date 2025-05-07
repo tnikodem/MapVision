@@ -24,11 +24,19 @@
         android:layout_marginBottom="25dp"
         android:text="@string/button_zoom_out_text" />
 
+    <Button
+        android:id="@+id/button_settings"
+        android:layout_width="52dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="25dp"
+        android:text="@string/button_settings_text" />
+
     <org.maplibre.android.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    </org.maplibre.android.maps.MapView>
+        android:layout_height="match_parent"></org.maplibre.android.maps.MapView>
 
 
 </RelativeLayout>

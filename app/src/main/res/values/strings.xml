@@ -2,4 +2,5 @@
     <string name="app_name">MapVision</string>
     <string name="button_zoom_in_text">+</string>
     <string name="button_zoom_out_text">-</string>
+    <string name="button_settings_text">S</string>
 </resources>
