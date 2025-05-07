@@ -38,7 +38,8 @@ class MainActivity : AppCompatActivity() {
         // Add MAP_STYLE_URL="https://example.com/style.json"
         val inputStream = assets.open("secrets.properties")
         properties.load(inputStream)
-        return properties.getProperty("MAP_STYLE_URL")
+        //return properties.getProperty("MAP_STYLE_URL")
+        return properties.getProperty("MAP_STYLE_SAT")
     }
 
     private fun createFeatureCollection(): FeatureCollection {
@@ -121,8 +122,8 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     //FIXME
                     val latLng = LatLng(
-                        50.826 + (Math.random() - 0.5) * 0.001,
-                        6.07717 + (Math.random() - 0.5) * 0.001
+                        50.826 + (Math.random() - 0.5) * 0.005,
+                        6.07717 + (Math.random() - 0.5) * 0.005
                     )
                     coordinates.add(latLng)
                     updateMapWithCoordinates()
