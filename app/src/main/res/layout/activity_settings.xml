@@ -10,13 +10,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <EditText
-        android:id="@+id/editTextText"
-        android:layout_width="match_parent"
-        android:layout_height="109dp"
-        android:ems="10"
-        android:inputType="text"
-        android:text="Settings"
-        android:visibility="visible"/>
+    <Button
+        android:id="@+id/Exit_Settings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Exit Settings"
+        android:translationX="300dp"
+        android:translationY="600dp" />
 
 </FrameLayout>

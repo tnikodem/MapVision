@@ -2,8 +2,8 @@
 
     <EditTextPreference
         android:key="map_style_url"
-        android:title="Map Style URL"
-        android:summary="Set the URL for the map style"
+        android:title="\nSettings"
+        android:summary=""
         android:defaultValue="https://example.com/style.json" />
 
     <SwitchPreferenceCompat

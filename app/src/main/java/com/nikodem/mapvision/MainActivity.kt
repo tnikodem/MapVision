@@ -23,6 +23,7 @@ import org.maplibre.geojson.Feature
 import org.maplibre.geojson.FeatureCollection
 import org.maplibre.geojson.Point
 import java.util.Properties
+import android.util.Log
 
 class MainActivity : AppCompatActivity() {
 
@@ -99,7 +100,22 @@ class MainActivity : AppCompatActivity() {
             val settingsButton = findViewById<Button>(R.id.button_settings)
             settingsButton.setOnClickListener {
                 val intent = Intent(this, SettingsActivity::class.java)
-                startActivity(intent)
+                startActivityForResult(intent, 100)
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 100 && resultCode == RESULT_OK) {
+            // Einstellungen neu laden
+            val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+            val mapType = sharedPreferences.getString("map_type", "normal") ?: "normal"
+            val mapStyleUrl = getMapStyleUrl(mapType)
+
+            // Map-Style aktualisieren
+            mapLibreMap.setStyle(mapStyleUrl) {
+                Toast.makeText(this, "Map-Style aktualisiert", Toast.LENGTH_SHORT).show()
             }
         }
     }
