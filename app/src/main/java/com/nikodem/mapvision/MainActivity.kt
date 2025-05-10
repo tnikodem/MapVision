@@ -25,6 +25,8 @@ import org.maplibre.geojson.FeatureCollection
 import org.maplibre.geojson.Point
 import java.util.Properties
 import android.util.Log
+import android.widget.ImageButton
+import org.maplibre.android.maps.MapLibreMap.OnCameraMoveStartedListener
 
 class MainActivity : AppCompatActivity() {
 
@@ -33,6 +35,7 @@ class MainActivity : AppCompatActivity() {
     private val coordinates = mutableListOf<LatLng>()
     private val handler = android.os.Handler()
     private val updateInterval = 5000L // 5 seconds
+    private var F_Position = true
 
     private val isEmulator = (Build.FINGERPRINT.startsWith("generic")
     || Build.FINGERPRINT.startsWith("unknown")
@@ -111,6 +114,19 @@ class MainActivity : AppCompatActivity() {
                 val intent = Intent(this, SettingsActivity::class.java)
                 startActivityForResult(intent, 100)
             }
+
+            // Settings Button Position
+            val positionButton = findViewById<ImageButton>(R.id.location)
+            positionButton.setOnClickListener {
+                Log.d ("Position", "Position-Button geklickt")
+                F_Position = true
+            }
+            mapLibreMap.addOnCameraMoveStartedListener { reason ->
+                if (reason == OnCameraMoveStartedListener.REASON_API_GESTURE) {
+                  //  val cameraPosition = mapLibreMap.cameraPosition
+                    F_Position = false
+                }
+            }
         }
     }
 
@@ -160,21 +176,24 @@ class MainActivity : AppCompatActivity() {
                 val lastLocation = locationComponent.lastKnownLocation
                 if (lastLocation != null && isEmulator == false) {
                     val latLng = LatLng(lastLocation.latitude, lastLocation.longitude)
-                    mapLibreMap.cameraPosition = CameraPosition.Builder()
-                        .target(latLng)
-                        .build()
+
                     coordinates.add(latLng)
                     updateMapWithCoordinates()
+                    if (F_Position == true)
+                        mapLibreMap.cameraPosition = CameraPosition.Builder()
+                        .target(latLng)
+                        .build()
                 } else {
                     Log.d("MainActivity", "Neue Koordinate: NULL")    //FIXME
                     val latLng = LatLng(
                         50.836 + (Math.random() - 0.5) * 0.005,
                         6.07717 + (Math.random() - 0.5) * 0.005)
-                    mapLibreMap.cameraPosition = CameraPosition.Builder()
-                        .target(latLng)
-                        .build()
                     coordinates.add(latLng)
                     updateMapWithCoordinates()
+                    if (F_Position == true)
+                        mapLibreMap.cameraPosition = CameraPosition.Builder()
+                            .target(latLng)
+                            .build()
                 }
                 handler.postDelayed(this, updateInterval)
             }
