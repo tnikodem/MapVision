@@ -30,10 +30,18 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var mapView: MapView
     private lateinit var mapLibreMap: MapLibreMap
-
     private val coordinates = mutableListOf<LatLng>()
     private val handler = android.os.Handler()
     private val updateInterval = 5000L // 5 seconds
+
+    private val isEmulator = (Build.FINGERPRINT.startsWith("generic")
+    || Build.FINGERPRINT.startsWith("unknown")
+    || Build.FINGERPRINT.contains("emu64xa:16")
+    || Build.MODEL.contains("google_sdk")
+    || Build.MODEL.contains("Android SDK built for x86")
+    || Build.MANUFACTURER.contains("Genymotion")
+    || (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
+    || "google_sdk" == Build.PRODUCT)
 
     private fun getMapStyleUrl(mapType: String): String {
         val properties = Properties()
@@ -104,21 +112,6 @@ class MainActivity : AppCompatActivity() {
                 startActivityForResult(intent, 100)
             }
         }
-        val isEmulator: Boolean
-         = (Build.FINGERPRINT.startsWith("generic")
-                || Build.FINGERPRINT.startsWith("unknown")
-                || Build.MODEL.contains("google_sdk")
-                || Build.MODEL.contains("Emulator")
-                || Build.MODEL.contains("Android SDK built for x86")
-                || Build.MANUFACTURER.contains("Genymotion")
-                || (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
-                || "google_sdk" == Build.PRODUCT)
-
-        if (isEmulator) {
-            Log.d("DeviceCheck", "Das Gerät ist ein Emulator.")
-        } else {
-            Log.d("DeviceCheck", "Das Gerät ist ein echtes Smartphone.")
-        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -165,7 +158,7 @@ class MainActivity : AppCompatActivity() {
             override fun run() {
                 val locationComponent = mapLibreMap.locationComponent
                 val lastLocation = locationComponent.lastKnownLocation
-                if (lastLocation != null) {
+                if (lastLocation != null && isEmulator == false) {
                     val latLng = LatLng(lastLocation.latitude, lastLocation.longitude)
                     mapLibreMap.cameraPosition = CameraPosition.Builder()
                         .target(latLng)
