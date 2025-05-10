@@ -11,12 +11,7 @@ import android.util.Xml
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import org.maplibre.android.geometry.LatLng
-import java.io.File
-import java.io.FileOutputStream
-import org.xmlpull.v1.XmlPullParser
 import java.io.InputStream
-import org.xmlpull.v1.XmlPullParserException
-import org.xmlpull.v1.XmlPullParserFactory
 import androidx.activity.result.contract.ActivityResultContracts
 
 class SettingsActivity : AppCompatActivity() {

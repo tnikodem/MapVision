@@ -1,16 +1,26 @@
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <EditTextPreference
+        android:defaultValue="https://example.com/style.json"
         android:key="map_style_url"
-        android:title="\nSettings"
         android:summary=""
-        android:defaultValue="https://example.com/style.json" />
+        app:singleLineTitle="true" />
 
+    <EditTextPreference
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:defaultValue="https://example.com/style.json"
+        android:key="map_style_url"
+        android:summary=""
+        android:title="                  Settings"
+        app:singleLineTitle="true" />
     <SwitchPreferenceCompat
         android:key="enable_tracking"
         android:title="Enable Tracking"
         android:summary="Enable or disable location tracking"
-        android:defaultValue="true" />
+        android:defaultValue="true"/>
+        <!--app:layout="@layout/preference_custom_layout"-->
 
     <ListPreference
         android:key="map_type"
@@ -18,5 +28,6 @@
         android:summary="Select the type of map to display"
         android:entries="@array/map_type_entries"
         android:entryValues="@array/map_type_values"
-        android:defaultValue="normal" />
+        android:defaultValue="normal"/>
+        <!--app:layout="@layout/preference_custom_layout"-->
 </PreferenceScreen>

@@ -27,6 +27,7 @@ import java.util.Properties
 import android.util.Log
 import android.widget.ImageButton
 import org.maplibre.android.maps.MapLibreMap.OnCameraMoveStartedListener
+import android.content.SharedPreferences
 
 class MainActivity : AppCompatActivity() {
 
@@ -35,6 +36,8 @@ class MainActivity : AppCompatActivity() {
     private val coordinates = mutableListOf<LatLng>()
     private val handler = android.os.Handler()
     private val updateInterval = 5000L // 5 seconds
+
+    private var F_Tracking = true
     private var F_Position = true
 
     private val isEmulator = (Build.FINGERPRINT.startsWith("generic")
@@ -79,6 +82,8 @@ class MainActivity : AppCompatActivity() {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         val mapType = sharedPreferences.getString("map_type", "normal")?:"normal"
 
+        F_Tracking = sharedPreferences.getBoolean("enable_tracking", true)
+
         // Init MapLibre
         MapLibre.getInstance(this)
 
@@ -121,13 +126,23 @@ class MainActivity : AppCompatActivity() {
                 Log.d ("Position", "Position-Button geklickt")
                 F_Position = true
             }
+
             mapLibreMap.addOnCameraMoveStartedListener { reason ->
                 if (reason == OnCameraMoveStartedListener.REASON_API_GESTURE) {
                   //  val cameraPosition = mapLibreMap.cameraPosition
                     F_Position = false
                 }
             }
-        }
+         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mapView.onResume()
+        // Wert aktualisieren, falls er in den Einstellungen geändert wurde
+        val sharedPreferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        F_Tracking = sharedPreferences.getBoolean("enable_tracking", true)
+        Log.d ("Manfred", "F_Tracking: $F_Tracking")
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -177,8 +192,10 @@ class MainActivity : AppCompatActivity() {
                 if (lastLocation != null && isEmulator == false) {
                     val latLng = LatLng(lastLocation.latitude, lastLocation.longitude)
 
-                    coordinates.add(latLng)
-                    updateMapWithCoordinates()
+                    if (F_Tracking == true) {
+                        coordinates.add(latLng)
+                        updateMapWithCoordinates()
+                    }
                     if (F_Position == true)
                         mapLibreMap.cameraPosition = CameraPosition.Builder()
                         .target(latLng)
@@ -188,8 +205,11 @@ class MainActivity : AppCompatActivity() {
                     val latLng = LatLng(
                         50.836 + (Math.random() - 0.5) * 0.005,
                         6.07717 + (Math.random() - 0.5) * 0.005)
-                    coordinates.add(latLng)
-                    updateMapWithCoordinates()
+
+                    if (F_Tracking == true) {
+                        coordinates.add(latLng)
+                        updateMapWithCoordinates()
+                    }
                     if (F_Position == true)
                         mapLibreMap.cameraPosition = CameraPosition.Builder()
                             .target(latLng)
@@ -241,7 +261,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onStart() { super.onStart(); mapView.onStart() }
-    override fun onResume() { super.onResume(); mapView.onResume() }
     override fun onPause() { super.onPause(); mapView.onPause() }
     override fun onStop() { super.onStop(); mapView.onStop() }
     override fun onDestroy() { super.onDestroy(); mapView.onDestroy() }
