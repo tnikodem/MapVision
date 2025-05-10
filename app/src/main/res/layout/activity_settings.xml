@@ -14,8 +14,23 @@
         android:id="@+id/Exit_Settings"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Exit Settings"
+        android:text="Exit"
         android:translationX="300dp"
-        android:translationY="600dp" />
+        android:translationY="550dp" />
+
+    <Button
+        android:id="@+id/PB_Load"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Load"
+        android:translationY="550dp" />
+
+    <Button
+        android:id="@+id/PB_Save"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Save"
+        android:translationX="100dp"
+        android:translationY="550dp" />
 
 </FrameLayout>

@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.preference.PreferenceManager
 import org.maplibre.android.MapLibre
@@ -76,7 +77,7 @@ class MainActivity : AppCompatActivity() {
         mapView = findViewById(R.id.mapView)
         mapView.getMapAsync { map ->
             mapLibreMap = map
-            map.cameraPosition = CameraPosition.Builder().target(LatLng(50.826, 6.07717)).zoom(12.0).build()
+            map.cameraPosition = CameraPosition.Builder().target(LatLng(50.836, 6.07717)).zoom(12.0).build()
 
             val mapStyleUrl = getMapStyleUrl(mapType)
             map.setStyle(mapStyleUrl) {
@@ -103,6 +104,21 @@ class MainActivity : AppCompatActivity() {
                 startActivityForResult(intent, 100)
             }
         }
+        val isEmulator: Boolean
+         = (Build.FINGERPRINT.startsWith("generic")
+                || Build.FINGERPRINT.startsWith("unknown")
+                || Build.MODEL.contains("google_sdk")
+                || Build.MODEL.contains("Emulator")
+                || Build.MODEL.contains("Android SDK built for x86")
+                || Build.MANUFACTURER.contains("Genymotion")
+                || (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
+                || "google_sdk" == Build.PRODUCT)
+
+        if (isEmulator) {
+            Log.d("DeviceCheck", "Das Gerät ist ein Emulator.")
+        } else {
+            Log.d("DeviceCheck", "Das Gerät ist ein echtes Smartphone.")
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -121,7 +137,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showAachenMarker() {
-        val aachenLatLng = LatLng(50.826, 6.07717)
+        val aachenLatLng = LatLng(50.836, 6.07717)
         mapLibreMap.addMarker(
             MarkerOptions()
                 .position(aachenLatLng)
@@ -151,14 +167,19 @@ class MainActivity : AppCompatActivity() {
                 val lastLocation = locationComponent.lastKnownLocation
                 if (lastLocation != null) {
                     val latLng = LatLng(lastLocation.latitude, lastLocation.longitude)
+                    mapLibreMap.cameraPosition = CameraPosition.Builder()
+                        .target(latLng)
+                        .build()
                     coordinates.add(latLng)
                     updateMapWithCoordinates()
                 } else {
-                    //FIXME
+                    Log.d("MainActivity", "Neue Koordinate: NULL")    //FIXME
                     val latLng = LatLng(
-                        50.826 + (Math.random() - 0.5) * 0.005,
-                        6.07717 + (Math.random() - 0.5) * 0.005
-                    )
+                        50.836 + (Math.random() - 0.5) * 0.005,
+                        6.07717 + (Math.random() - 0.5) * 0.005)
+                    mapLibreMap.cameraPosition = CameraPosition.Builder()
+                        .target(latLng)
+                        .build()
                     coordinates.add(latLng)
                     updateMapWithCoordinates()
                 }
