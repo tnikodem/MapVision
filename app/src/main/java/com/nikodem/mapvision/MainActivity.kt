@@ -75,6 +75,106 @@ class MainActivity : AppCompatActivity() {
         )
         return featureCollection
     }
+    private fun enableLocation() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                123
+            )
+        } else {
+            val locationComponent = mapLibreMap.locationComponent
+            val options = org.maplibre.android.location.LocationComponentActivationOptions
+                .builder(this, mapLibreMap.style!!)
+                .useDefaultLocationEngine(true)
+                .build()
+            locationComponent.activateLocationComponent(options)
+            locationComponent.isLocationComponentEnabled = true
+            locationComponent.cameraMode = org.maplibre.android.location.modes.CameraMode.TRACKING
+            locationComponent.renderMode = org.maplibre.android.location.modes.RenderMode.COMPASS
+        }
+    }
+    private fun showAachenMarker() {
+        val aachenLatLng = LatLng(50.836, 6.07717)
+        mapLibreMap.addMarker(
+            MarkerOptions()
+                .position(aachenLatLng)
+                .title("Aachen")
+        )
+        mapLibreMap.animateCamera(CameraUpdateFactory.newLatLngZoom(aachenLatLng, 12.0))
+    }
+
+    private fun startLocationUpdates() {
+        // init map layer
+        val featureCollection = createFeatureCollection()
+        val source = GeoJsonSource(
+            "coordinates",
+            featureCollection
+        )
+        Log.d("Manfred", "StartLocationUpdates")
+        mapLibreMap.style!!.addSource(source)
+        val layer = CircleLayer("coordinates", source.id).withProperties(
+            org.maplibre.android.style.layers.PropertyFactory.circleRadius(3f),
+            org.maplibre.android.style.layers.PropertyFactory.circleColor("red")
+        )
+        mapLibreMap.style!!.addLayer(layer)
+
+        // define update function
+        handler.postDelayed(object : Runnable {
+            override fun run() {
+                val locationComponent = mapLibreMap.locationComponent
+                val lastLocation = locationComponent.lastKnownLocation
+                if (lastLocation != null && isEmulator == false) {
+                    val latLng = LatLng(lastLocation.latitude, lastLocation.longitude)
+                    Log.d("Manfred", "Tracking = $F_Tracking : Position = $F_Position")
+
+                    if (F_Tracking == true) {
+                        coordinates.add(latLng)
+                        updateMapWithCoordinates()
+                    }
+                    if (F_Position == true)
+                        mapLibreMap.cameraPosition = CameraPosition.Builder()
+                            .target(latLng)
+                            .build()
+                } else {
+                    val latLng = LatLng(
+                        50.836 + (Math.random() - 0.5) * 0.005,
+                        6.07717 + (Math.random() - 0.5) * 0.005)
+                    Log.d("Manfred", "Tracking = $F_Tracking : Position = $F_Position")
+                    if (F_Tracking == true) {
+                        coordinates.add(latLng)
+                        updateMapWithCoordinates()
+                    }
+                    if (F_Position == true)
+                        mapLibreMap.cameraPosition = CameraPosition.Builder()
+                            .target(latLng)
+                            .build()
+                }
+                handler.postDelayed(this, updateInterval)
+            }
+        }, updateInterval)
+    }
+    private fun updateMapWithCoordinates() {
+        // Update geojson layer to show all coordinates
+        val source = mapLibreMap.style!!.getSourceAs<GeoJsonSource>("coordinates")
+
+        if (source == null) {
+            Log.d("Manfred", "GeoJsonSource 'coordinates' nicht gefunden!")
+            return
+        }
+
+        if (coordinates.isEmpty()) {
+            Log.d("Manfred", "Keine Koordinaten vorhanden, um die Karte zu aktualisieren.")
+            return
+        }
+
+        source?.setGeoJson(createFeatureCollection())
+
+        //show toast with last coordinates
+        val lastCoordinate = coordinates.last()
+        Toast.makeText(this, "Pos: $lastCoordinate", Toast.LENGTH_SHORT).show()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -142,7 +242,7 @@ class MainActivity : AppCompatActivity() {
         // Wert aktualisieren, falls er in den Einstellungen geändert wurde
         val sharedPreferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         F_Tracking = sharedPreferences.getBoolean("enable_tracking", true)
-        Log.d ("Manfred", "F_Tracking: $F_Tracking")
+        Log.d ("Manfred", "mapView.onResume, F_Tracking: $F_Tracking")
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -152,102 +252,24 @@ class MainActivity : AppCompatActivity() {
             val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
             val mapType = sharedPreferences.getString("map_type", "normal") ?: "normal"
             val mapStyleUrl = getMapStyleUrl(mapType)
-
+Log.d("Manfred", "OnActivityResult")
             // Map-Style aktualisieren
+
             mapLibreMap.setStyle(mapStyleUrl) {
                 Toast.makeText(this, "Map-Style aktualisiert", Toast.LENGTH_SHORT).show()
+                // GeoJsonSource und Layer erneut hinzufügen
+                val featureCollection = createFeatureCollection()
+                val source = GeoJsonSource("coordinates", featureCollection)
+                it.addSource(source)
+
+                val layer = CircleLayer("coordinates", source.id).withProperties(
+                    org.maplibre.android.style.layers.PropertyFactory.circleRadius(3f),
+                    org.maplibre.android.style.layers.PropertyFactory.circleColor("blue")
+                )
+                it.addLayer(layer)
+
+                Log.d("Manfred", "GeoJsonSource und Layer wurden nach Style-Wechsel hinzugefügt.")
             }
-        }
-    }
-
-    private fun showAachenMarker() {
-        val aachenLatLng = LatLng(50.836, 6.07717)
-        mapLibreMap.addMarker(
-            MarkerOptions()
-                .position(aachenLatLng)
-                .title("Aachen")
-        )
-        mapLibreMap.animateCamera(CameraUpdateFactory.newLatLngZoom(aachenLatLng, 12.0))
-    }
-
-    private fun startLocationUpdates() {
-        // init map layer
-        val featureCollection = createFeatureCollection()
-        val source = GeoJsonSource(
-            "coordinates",
-            featureCollection
-        )
-        mapLibreMap.style!!.addSource(source)
-        val layer = CircleLayer("coordinates", source.id).withProperties(
-            org.maplibre.android.style.layers.PropertyFactory.circleRadius(3f),
-            org.maplibre.android.style.layers.PropertyFactory.circleColor("red")
-        )
-        mapLibreMap.style!!.addLayer(layer)
-
-        // define update function
-        handler.postDelayed(object : Runnable {
-            override fun run() {
-                val locationComponent = mapLibreMap.locationComponent
-                val lastLocation = locationComponent.lastKnownLocation
-                if (lastLocation != null && isEmulator == false) {
-                    val latLng = LatLng(lastLocation.latitude, lastLocation.longitude)
-
-                    if (F_Tracking == true) {
-                        coordinates.add(latLng)
-                        updateMapWithCoordinates()
-                    }
-                    if (F_Position == true)
-                        mapLibreMap.cameraPosition = CameraPosition.Builder()
-                        .target(latLng)
-                        .build()
-                } else {
-                    Log.d("MainActivity", "Neue Koordinate: NULL")    //FIXME
-                    val latLng = LatLng(
-                        50.836 + (Math.random() - 0.5) * 0.005,
-                        6.07717 + (Math.random() - 0.5) * 0.005)
-
-                    if (F_Tracking == true) {
-                        coordinates.add(latLng)
-                        updateMapWithCoordinates()
-                    }
-                    if (F_Position == true)
-                        mapLibreMap.cameraPosition = CameraPosition.Builder()
-                            .target(latLng)
-                            .build()
-                }
-                handler.postDelayed(this, updateInterval)
-            }
-        }, updateInterval)
-    }
-
-    private fun updateMapWithCoordinates() {
-        // Update geojson layer to show all coordinates
-        val source = mapLibreMap.style!!.getSourceAs<GeoJsonSource>("coordinates")
-        source?.setGeoJson(createFeatureCollection())
-
-        //show toast with last coordinates
-        val lastCoordinate = coordinates.last()
-        Toast.makeText(this, "Last Coordinate: $lastCoordinate", Toast.LENGTH_SHORT).show()
-    }
-
-    private fun enableLocation() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                123
-            )
-        } else {
-            val locationComponent = mapLibreMap.locationComponent
-            val options = org.maplibre.android.location.LocationComponentActivationOptions
-                .builder(this, mapLibreMap.style!!)
-                .useDefaultLocationEngine(true)
-                .build()
-            locationComponent.activateLocationComponent(options)
-            locationComponent.isLocationComponentEnabled = true
-            locationComponent.cameraMode = org.maplibre.android.location.modes.CameraMode.TRACKING
-            locationComponent.renderMode = org.maplibre.android.location.modes.RenderMode.COMPASS
         }
     }
 
