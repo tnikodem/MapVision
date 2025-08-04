@@ -22,7 +22,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="25dp"
+        android:layout_marginBottom="110dp"
         android:text="@string/button_zoom_out_text" />
 
     <Button
@@ -31,8 +31,36 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="25dp"
-        android:text="@string/button_settings_text" />
+        android:layout_marginBottom="50dp"
+        android:text="⚙️" />
+
+    <Button
+        android:id="@+id/button_start_recording"
+        android:layout_width="75dp"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/button_settings"
+        android:layout_marginStart="10dp"
+        android:layout_toEndOf="@+id/button_settings"
+        android:text="Start" />
+
+    <Button
+        android:id="@+id/button_stop_recording"
+        android:layout_width="75dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_alignBottom="@+id/button_settings"
+        android:layout_toEndOf="@+id/button_start_recording"
+        android:text="Stop" />
+
+    <Button
+        android:id="@+id/button_clear_recording"
+        android:layout_width="75dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="0dp"
+        android:layout_alignBottom="@+id/button_settings"
+        android:layout_toEndOf="@+id/button_stop_recording"
+        android:text="Clear" />
 
     <org.maplibre.android.maps.MapView
         android:id="@+id/mapView"
